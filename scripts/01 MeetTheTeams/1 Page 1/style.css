@@ -1,0 +1,281 @@
+:root {
+    --color-position-box: rgba(255, 111, 0, 0.7);
+}
+body {
+    font-family: 'Arial', sans-serif;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    margin: 0;
+    overflow: hidden;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+}
+.scale-wrapper {
+    position: absolute;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: top left;
+}
+.grid-container {
+    box-sizing: border-box;
+    position: absolute;
+    /* CENTRADO VERTICAL */
+    top: 50%; 
+    left: 410px;
+    right: 50px;
+    /* Ajuste de offset via JS */
+    transform: translateY(-50%); 
+    display: grid;
+    gap: 12px;
+    grid-auto-flow: column;
+    align-content: start; 
+    opacity: 0;
+    transition: opacity .5s ease-in-out;
+    z-index: 10;
+}
+
+/* --- ESTILOS BASE (MODO ORIGINAL / FALSE) --- */
+.item-box {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    display: flex; 
+    align-items: center; 
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 66px; 
+    transition: height 0.5s ease;
+    position: relative; 
+}
+
+.item-top {
+    background-color: var(--color-position-box);
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #FFFFFF;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 75px;
+    flex-shrink: 0;
+}
+
+.team-logo-container {
+    width: 50px;
+    height: 50px;
+    margin-left: 10px; 
+    margin-right: 5px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.team-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; 
+    object-position: center center;
+    display: block;
+    margin: auto;
+}
+
+.item-info {
+    flex-grow: 1;
+    padding: 5px 10px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.item-team-name {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #FFFFFF;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    z-index: 20; 
+}
+
+.item-players {
+    font-size: 1.0em;
+    color: #FFFFFF;
+    font-style: normal;
+    line-height: 1.3;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; 
+    gap: 0 5px;
+    position: relative;
+    z-index: 20;
+}
+
+/* ========================================= */
+/* === MODO FOTOS (VARIABLE TRUE) ========= */
+/* ========================================= */
+
+.grid-container.with-photos .item-box {
+    height: 200px; 
+    display: block; 
+}
+
+.grid-container.with-photos .item-top {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 75px;
+    height: 66px; 
+    z-index: 5;
+}
+
+.grid-container.with-photos .team-logo-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 66px; 
+    width: 75px; 
+    height: auto; 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box;
+    z-index: 5;
+    background-color: rgba(0,0,0,0.2); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-container.with-photos .team-logo {
+    width: auto;
+    height: auto;
+    max-width: 60px; 
+    max-height: 60px; 
+    object-fit: contain;
+}
+
+.grid-container.with-photos .item-info {
+    margin-left: 75px;
+    height: 100%;
+    width: auto;
+    display: grid; 
+    grid-template-rows: 45px 1fr 35px;
+    align-items: center; 
+    text-align: center;
+    padding: 5px 10px;
+}
+
+.grid-container.with-photos .item-team-name {
+    font-size: 1.4em; 
+    margin: 0;
+    align-self: center; 
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8); 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.grid-container.with-photos .item-players {
+    justify-content: center;
+    margin: 0;
+    align-self: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+.player-photos-block {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; 
+    width: calc(100% - 5px); 
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    z-index: 1; 
+    margin: 0 auto; 
+}
+
+.player-slot {
+    width: 36%; 
+    height: 100%;
+    margin: 0 -5px; 
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.player-silhouette {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    object-position: bottom;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
+}
+
+/* --- NUEVO: ENCABEZADO SUPERIOR INFO Y LEYENDA --- */
+.info-header {
+    position: absolute;
+    /* Top controlado vía JS */
+    left: 410px;
+    right: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    height: 30px; /* CAMBIO: Reducido proporcionalmente para la resolución 1080p */
+    gap: 15px;
+    opacity: 0;
+    transition: opacity .5s ease-in-out, top .3s ease-in-out;
+    z-index: 50; 
+}
+
+.header-text {
+    font-size: 1.05em; /* CAMBIO: Escalado desde 1.4em para igualar proporción del Ticker */
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0,0,0,0.6);
+    padding: 4px 12px; /* CAMBIO: Padding ajustado a la nueva altura */
+    border-radius: 5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: block; 
+    min-height: 18px; /* CAMBIO: Ajustado a la nueva altura */
+}
+
+#tournamentTitle { max-width: 70%; }
+#tournamentFormat { max-width: 30%; }
+
+.group-legend-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* CAMBIO: Un poco menos de espacio entre grupos */
+    flex-shrink: 0; 
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* CAMBIO: Ajuste de espaciado interno */
+    font-size: 1.05em; /* CAMBIO: Escalado desde 1em */
+    background-color: rgba(0,0,0,0.6); 
+    padding: 4px 8px; /* CAMBIO: Ajustado a la nueva altura */
+    border-radius: 5px;
+}
+.legend-color-circle {
+    width: 12px; /* CAMBIO: Escalado desde 15px */
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.1);
+}

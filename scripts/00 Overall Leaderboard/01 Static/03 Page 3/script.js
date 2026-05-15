@@ -1,4 +1,10 @@
-window.addEventListener('onWidgetLoad', function (obj) { const configUrl = obj.detail.fieldData.configUrl; if (!configUrl) return; main(configUrl); });
+// Definimos la URL manualmente ya que no estamos en StreamElements
+const MY_CONFIG_URL = "https://api.jsonbin.io/v3/b/6864add38960c979a5b59aa6";
+
+window.addEventListener('DOMContentLoaded', function () {
+    // Usamos la URL que definimos arriba directamente
+    main(MY_CONFIG_URL); 
+});
 async function main(configUrl) { const config = await fetchConfigSE(configUrl); if (!config) return; setupCanvas(config); initPuntosEquipoLiga(config); }
 function setupCanvas(config) { const canvasWidth = parseInt(config.Settings?.n_CanvasWidth || '1920', 10); const canvasHeight = parseInt(config.Settings?.n_CanvasHeight || '1080', 10); const baseWidth = 1920; document.body.style.width = `${canvasWidth}px`; document.body.style.height = `${canvasHeight}px`; const wrapper = document.querySelector('.scale-wrapper'); if (wrapper) { const scaleFactor = canvasWidth / baseWidth; wrapper.style.transform = `scale(${scaleFactor})`; } }
 async function fetchConfigSE(url) { try { const response = await fetch(url + `?t=${new Date().getTime()}`); if (!response.ok) throw new Error(`Error: ${response.status}`); const configData = await response.json(); return configData.record; } catch (error) { console.error("Error en fetchConfigSE:", error); return null; } }

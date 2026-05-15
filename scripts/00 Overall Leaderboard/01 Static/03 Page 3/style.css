@@ -1,0 +1,45 @@
+:root { --color-position-box: rgba(255, 111, 0, 0.7); }
+body { font-family: 'Arial', sans-serif; background-size: cover; background-position: center; background-repeat: no-repeat; color: white; margin: 0; overflow: hidden; text-shadow: 1px 1px 3px rgba(0,0,0,0.7); }
+.scale-wrapper { position: absolute; width: 1920px; height: 1080px; transform-origin: top left; }
+.grid-container { box-sizing: border-box; position: absolute; top: 190px; bottom: 150px; left: 410px; right: 50px; display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(10, 1fr); gap: 12px; opacity: 0; transition: opacity .5s ease-in-out; }
+.item-box { background-color: rgba(0, 0, 0, 0.6); border-radius: 8px; display: flex; align-items: stretch; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+
+.item-top { background-color: var(--color-position-box); font-size: 1.8em; font-weight: bold; color: #FFFFFF; display: flex; align-items: center; justify-content: center; position: relative; width: 75px; flex-shrink: 0; }
+
+/* CAMBIO: Se agregó font-weight: normal para quitar negritas */
+.item-rounds { position: absolute; bottom: 4px; right: 4px; font-size: 0.5em; font-weight: normal; }
+
+/* Estilos de Logo */
+.team-logo-container { width: 50px; height: 50px; margin-right: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.team-logo { width: 100%; height: 100%; object-fit: contain; object-position: center center; display: block; margin: auto; }
+
+.team-info-container { flex-grow: 1; display: flex; align-items: center; padding: 5px 15px; min-width: 0; gap: 10px; }
+
+.team-identity { flex-basis: 25%; display: flex; align-items: center; flex-shrink: 0; overflow: hidden; }
+
+.team-names { flex-grow: 1; text-align: left; min-width: 0; }
+.item-team-name { font-size: 1.1em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-players { font-size: 0.8em; color: #FFFFFF; font-style: normal; line-height: 1.3; }
+.player-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 10px; }
+.player-row { display: block; }
+.player-row.centered { text-align: center; }
+
+.map-scores-container { flex-grow: 1; display: grid; gap: 4px; align-items: center; }
+.map-score { font-size: 1.1em; font-weight: bold; text-align: center; background-color: rgba(0,0,0,0.2); padding: 4px 0; border-radius: 4px; }
+
+.item-points { background-color: rgba(0, 0, 0, 0.3); font-size: 1.8em; font-weight: bold; color: #FFFFFF; display: flex; align-items: center; justify-content: center; width: 120px; flex-shrink: 0; border-left: 2px solid rgba(0,0,0,0.5); }
+.qualification-highlight { border-color: var(--color-matchpoint-border); box-shadow: 0 0 8px var(--color-matchpoint-border); }
+
+.group-legend { position: absolute; bottom: 110px; left: 410px; right: 50px; display: flex; justify-content: center; gap: 20px; opacity: 0; transition: opacity .5s ease-in-out; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 1em; background-color: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 5px; }
+.legend-color-circle { width: 15px; height: 15px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.1); }
+
+.liga-header { color: #FFFFFF; font-weight: bold; font-size: 1.1em; display: flex; align-items: center; position: absolute; top: 155px; left: 410px; right: 50px; height: 30px; }
+.header-labels { flex-grow: 1; display: flex; justify-content: space-between; gap: 15px; padding: 0 15px; }
+.header-map-labels { flex-grow: 1; display: grid; gap: 4px; align-items: center; }
+.header-map-labels > div { text-align: center; }
+.header-points-label { width: 120px; text-align: center; }
+.header-team-label { flex-basis: 25%; flex-shrink: 0; }
+.header-spacer { width: 75px; flex-shrink: 0; }
+
+.page-legend { position: absolute; bottom: 110px; right: 50px; font-size: 1em; font-style: normal; color: #FFFFFF; background-color: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 5px; }

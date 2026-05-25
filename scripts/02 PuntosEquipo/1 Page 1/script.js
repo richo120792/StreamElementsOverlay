@@ -11,7 +11,33 @@ window.addEventListener('DOMContentLoaded', function () {
 
 async function main(configUrl) { const config = await fetchConfigSE(configUrl); if (!config) return; setupCanvas(config); initPuntosGrid(config); }
 function setupCanvas(config) { const canvasWidth = parseInt(config.Settings?.n_CanvasWidth || '1920', 10); const canvasHeight = parseInt(config.Settings?.n_CanvasHeight || '1080', 10); const baseWidth = 1920; document.body.style.width = `${canvasWidth}px`; document.body.style.height = `${canvasHeight}px`; const wrapper = document.querySelector('.scale-wrapper'); if (wrapper) { const scaleFactor = canvasWidth / baseWidth; wrapper.style.transform = `scale(${scaleFactor})`; } }
-async function fetchConfigSE(url) { try { const response = await fetch(url + `?t=${new Date().getTime()}`); if (!response.ok) throw new Error(`Error: ${response.status}`); const configData = await response.json(); return configData.record; } catch (error) { return null; } }
+
+async function fetchConfigSE(url) {
+    // 1. Intentar cargar desde el servidor principal (JSONBin)
+    try {
+        console.log("Intentando cargar configuración desde JSONBin...");
+        const response = await fetch(url + `?t=${new Date().getTime()}`);
+        if (!response.ok) throw new Error(`JSONBin respondió con estado: ${response.status}`);
+        const configData = await response.json();
+        return configData.record;
+    } catch (error) {
+        console.warn("Falló el servidor principal (JSONBin). Buscando respaldo en la raíz de GitHub...", error);
+        
+        // 2. Sistema de respaldo: Apuntar al config.json en la raíz (un nivel arriba)
+        try {
+            const backupResponse = await fetch(`../../config.json?t=${new Date().getTime()}`);
+            if (!backupResponse.ok) throw new Error(`No se encontró el config.json de respaldo en la raíz.`);
+            const backupData = await backupResponse.json();
+            
+            console.log("¡Configuración de respaldo cargada con éxito desde la raíz de GitHub!");
+            return backupData.record ? backupData.record : backupData;
+        } catch (backupError) {
+            console.error("Error crítico: Ambos servidores de configuración fallaron.", backupError);
+            return null;
+        }
+    }
+}
+
 function applyColorConfig(config) { const root = document.documentElement; if (!root || !config.Themes || !config.active_theme_name) return; const activeTheme = config.Themes[config.active_theme_name]; if (!activeTheme) return; for (const key in activeTheme) { if (Object.hasOwnProperty.call(activeTheme, key)) { const cssVarName = `--${key.toLowerCase().replace(/_/g, '-')}`; root.style.setProperty(cssVarName, activeTheme[key]); } } }
 
 async function fetchSheetDataSE(gidKey, config) { 
@@ -66,6 +92,10 @@ function renderGroupLegend(config) {
 }
 
 function initPuntosGrid(config) {
+    // === CAMBIA ESTO A 2 PARA TU SEGUNDO OVERLAY DE PÁGINA 2 ===
+    const PAGE_TO_SHOW = 1; 
+    // ============================================================
+
     const DATA_REFRESH_INTERVAL = 10000;
     setDynamicBackground(document.body, "puntos_equipo", config);
     applyColorConfig(config);
@@ -92,24 +122,9 @@ function initPuntosGrid(config) {
     const enableQualificationHighlight = (config.Settings.b_EnableQualificationHighlight || 'FALSE').toUpperCase() === 'TRUE';
     const qualificationThreshold = parseInt(config.Settings.n_QualificationThreshold || '10', 10);
 
-    const itemsPerPage = 30, currentPage = 0;
     const enableGroupColors = (config.Settings.b_EnableGroupColors || 'FALSE').toUpperCase() === 'TRUE';
     const playersPerTeam = parseInt(config.Settings.n_PlayersPerTeam || '4', 10);
     let allData = [];
-
-    // --- CORRECCIÓN 1: Ancho de columnas fijo ---
-    let rowsCalc = 10;
-    if (totalTeamsConfig <= 30) { 
-        const columns = 3;
-        rowsCalc = Math.ceil(totalTeamsConfig / columns); 
-        gridContainer.style.gridTemplateRows = `repeat(${rowsCalc}, 66px)`; 
-        gridContainer.style.gridAutoFlow = "column"; 
-        gridContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-    } else { 
-        rowsCalc = 10;
-        gridContainer.style.gridTemplateColumns = "repeat(3, 1fr)"; 
-        gridContainer.style.gridTemplateRows = "repeat(10, 66px)"; 
-    }
 
     // --- LECTURA DE TÍTULO Y FORMATO ---
     const updateHeaderInfo = async () => {
@@ -128,11 +143,11 @@ function initPuntosGrid(config) {
     };
 
     // --- POSICIÓN DINÁMICA DEL ENCABEZADO ---
-    const updateHeaderPosition = () => {
+    const updateHeaderPosition = (rowsCalc) => {
         if (!infoHeader) return;
         const gridHeight = (rowsCalc * 66) + ((rowsCalc - 1) * 12);
-        const topGridY = 150 + offset;
-        const bottomGridY = topGridY + gridHeight;
+        const canvasCenterY = 540; 
+        const bottomGridY = canvasCenterY + offset + (gridHeight / 2);
         
         const targetTop = 940; // Altura estándar alineado con todo lo demás
         const minTop = bottomGridY + 30; // 30px de margen si la cuadrícula crece
@@ -201,7 +216,6 @@ function initPuntosGrid(config) {
         return `<div class="item-box ${specialClass}" data-team-name="${cleanName}"><div class="item-top" ${positionBoxStyle}>${Top}<span class="item-rounds">R${Rondas}</span></div>${logoHTML}<div class="item-info"><div class="item-team-name">${Equipo}</div><div class="item-players">${playersHTML}</div></div><div class="item-points">${Puntos}</div></div>`;
     };
 
-    // --- CORRECCIÓN 2: Función para actualizar DOM existente sin recrear HTML ---
     const updateTeamItemDOM = (domElement, teamData) => {
         const { Top = "-", Equipo = "N/A", Puntos = "0", Rondas = "0", Grupo = "", Win = "" } = teamData;
         
@@ -266,9 +280,46 @@ function initPuntosGrid(config) {
 
     const displayCurrentPage = () => { 
         if (!gridContainer) return; 
+        
         const relevantData = allData.slice(0, totalTeamsConfig); 
-        const start = currentPage * itemsPerPage; 
+        
+        // --- LÓGICA DE PAGINACIÓN ---
+        const splitEvenly = (config.Settings.b_SplitTeamsEvenly || 'FALSE').toUpperCase() === 'TRUE';
+        let itemsPerPage = 30; // Máximo estándar por página (3 columnas x 10 filas)
+
+        if (splitEvenly && totalTeamsConfig > 30) {
+            // Dividir equitativamente
+            itemsPerPage = Math.ceil(totalTeamsConfig / 2);
+        }
+
+        const start = (PAGE_TO_SHOW - 1) * itemsPerPage; 
         const pageData = relevantData.slice(start, start + itemsPerPage); 
+
+        // Si la página está vacía (ej. Página 2, pero solo hay 20 equipos en total)
+        if (pageData.length === 0) {
+            gridContainer.innerHTML = "";
+            if (infoHeader) infoHeader.style.opacity = "0";
+            return;
+        }
+
+        // --- CÁLCULO DE CUADRÍCULA ---
+        const columns = 3;
+        let rowsCalc = 10;
+
+        if (splitEvenly && totalTeamsConfig > 30) {
+            rowsCalc = Math.ceil(pageData.length / columns);
+        } else {
+            if (totalTeamsConfig > 30) {
+                // Fuerza diseño idéntico en Pag 1 y Pag 2 (10 filas) para evitar el 3x7
+                rowsCalc = 10; 
+            } else {
+                rowsCalc = Math.ceil(relevantData.length / columns);
+            }
+        }
+
+        gridContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+        gridContainer.style.gridTemplateRows = `repeat(${rowsCalc}, 66px)`;
+        gridContainer.style.gridAutoFlow = "column"; 
         
         // Verificar si la estructura DOM ya existe y tiene la misma cantidad de elementos
         const currentItems = gridContainer.querySelectorAll('.item-box');
@@ -285,9 +336,9 @@ function initPuntosGrid(config) {
             gridContainer.innerHTML = newHTML; 
         }
         
-        gridContainer.style.opacity = 1; 
-        if (infoHeader) infoHeader.style.opacity = 1; 
-        updateHeaderPosition();
+        gridContainer.style.opacity = "1"; 
+        if (infoHeader) infoHeader.style.opacity = "1"; 
+        updateHeaderPosition(rowsCalc);
     };
     
     const refreshData = async () => {

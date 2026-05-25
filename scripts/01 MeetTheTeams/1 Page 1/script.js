@@ -34,7 +34,7 @@ async function fetchConfigSE(url) {
         
         // 2. Sistema de respaldo: Apuntar al config.json en la raíz (un nivel arriba)
         try {
-            const backupResponse = await fetch(`../config.json?t=${new Date().getTime()}`);
+            const backupResponse = await fetch(`../../config.json?t=${new Date().getTime()}`);
             if (!backupResponse.ok) throw new Error(`No se encontró el config.json de respaldo en la raíz.`);
             const backupData = await backupResponse.json();
             

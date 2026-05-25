@@ -7,9 +7,15 @@ window.addEventListener('onWidgetLoad', function (obj) {
 // Definimos la URL manualmente ya que no estamos en StreamElements
 const MY_CONFIG_URL = "https://api.jsonbin.io/v3/b/6864add38960c979a5b59aa6";
 
-window.addEventListener('DOMContentLoaded', function () {
-    // Usamos la URL que definimos arriba directamente
-    main(MY_CONFIG_URL); 
+window.addEventListener('DOMContentLoaded', async function () {
+    // 1. Cargamos primero la configuración usando nuestro sistema de respaldo
+    const config = await fetchConfigSE(MY_CONFIG_URL);
+    if (config) {
+        // 2. Ejecutamos la función inicializadora real del Ticker pasándole la config
+        initTickerPuntos(config);
+    } else {
+        console.error("Error crítico: No se pudo obtener la configuración para el Ticker.");
+    }
 });
 
 // --- FUNCIONES DE AYUDA ---

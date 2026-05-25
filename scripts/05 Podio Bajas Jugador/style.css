@@ -1,0 +1,208 @@
+:root {
+    --color-position-box: rgba(255, 111, 0, 0.7);
+    --color-podium-base: rgba(0, 0, 0, 0.6);
+    --color-podium-border: rgba(255, 255, 255, 0.1);
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: rgba(255, 255, 255, 0.75);
+    
+    /* Variables de premios */
+    --color-winner-glow: rgba(255, 215, 0, 0.8);
+    --color-winner-border: #FFD700;
+    --color-winner-base: rgba(205, 133, 63, 0.7);
+    --color-matchpoint: rgba(255, 111, 0, 0.6);
+    --color-matchpoint-border: rgba(255, 140, 0, 0.9);
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: var(--color-text-primary);
+    margin: 0;
+    overflow: hidden;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.scale-wrapper {
+    position: absolute;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: top left;
+}
+
+.grid-container {
+    box-sizing: border-box;
+    position: absolute;
+    top: 250px; 
+    height: 610px;
+    left: 410px; 
+    right: 50px; 
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    align-content: stretch;
+    opacity: 0;
+    transition: opacity .5s ease-in-out;
+}
+
+.podium-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid var(--color-podium-border); 
+    background-color: var(--color-podium-base);
+    transition: border-color .5s ease;
+}
+
+/* --- BARRA SUPERIOR --- */
+.info-bar-top {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centrar el bloque interno */
+    height: 66px;
+    flex-shrink: 0; 
+    transition: background-color .5s ease;
+    z-index: 10;
+    position: relative;
+    padding: 0 5px;
+}
+
+/* --- WRAPPER DE IDENTIDAD --- */
+.identity-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%; 
+}
+
+.logo-box-top {
+    width: 50px; 
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; 
+    margin-right: 8px; 
+}
+
+.team-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.item-team-name {
+    font-size: 1.6em; 
+    font-weight: bold;
+    color: #FFFFFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    flex-shrink: 1; 
+    /* CAMBIO: Center para que si se queda solo, esté centrado */
+    text-align: center; 
+}
+
+/* --- FOTO JUGADOR --- */
+.player-photo-container {
+    width: 100%;
+    flex-grow: 1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.player-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.player-photo.default-img {
+    width: auto;
+    height: 90%; 
+    object-fit: contain;
+    align-self: center;
+}
+
+/* --- BARRA INFERIOR --- */
+.info-bar-bottom {
+    display: flex;
+    align-items: stretch; 
+    height: 66px;
+    flex-shrink: 0; 
+    color: #FFFFFF;
+    transition: background-color .5s ease;
+    z-index: 10;
+    position: relative;
+}
+
+/* Caja de Posición */
+.item-pos-bottom {
+    background-color: var(--color-position-box);
+    width: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    font-weight: bold;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Kills */
+.item-kills {
+    flex-grow: 1; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.item-rounds {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 0.5em;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* Lógica de premios */
+.info-bar-top.fragger-top1,
+.info-bar-bottom.fragger-top1 {
+    background-color: var(--color-winner-glow);
+}
+.info-bar-top.fragger-top2,
+.info-bar-bottom.fragger-top2 {
+    background-color: var(--color-winner-base);
+}
+.info-bar-top.fragger-top3,
+.info-bar-bottom.fragger-top3 {
+    background-color: var(--color-matchpoint);
+}
+
+.item-pos-bottom {
+    background-color: var(--color-position-box);
+}
+
+.podium-wrapper.fragger-top1 {
+    border-color: var(--color-winner-border);
+    box-shadow: 0 0 15px var(--color-winner-glow);
+}
+.podium-wrapper.fragger-top2 {
+    border-color: var(--color-winner-border);
+}
+.podium-wrapper.fragger-top3 {
+    border-color: var(--color-matchpoint-border);
+}

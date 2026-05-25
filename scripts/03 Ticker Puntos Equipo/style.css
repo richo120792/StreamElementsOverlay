@@ -1,0 +1,192 @@
+:root {
+    --color-position-box: rgba(255, 111, 0, 0.7);
+    --color-matchpoint: rgba(220, 220, 220, 0.7);
+    --color-matchpoint-border: #FFFFFF;
+    --color-winner-base: rgba(224, 64, 251, 0.7);
+    --color-winner-glow: rgba(240, 100, 255, 0.9);
+    --color-winner-border: rgba(224, 64, 251, 1);
+}
+body {
+    font-family: 'Arial', sans-serif;
+    background: transparent;
+    color: white;
+    margin: 0;
+    overflow: hidden;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+    width: 2560px;
+    height: 1440px;
+}
+
+/* --- TICKER ITEMS --- */
+.ticker-grid-container {
+    position: absolute;
+    bottom: 13px; 
+    left: 480px;
+    right: 13px;
+    height: 80px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+/* --- HEADER SUPERIOR --- */
+.info-header {
+    position: absolute;
+    bottom: 100px; /* Separación con el Ticker */
+    left: 480px;
+    right: 13px;
+    display: flex;
+    align-items: stretch; /* Fuerza a todos los hijos a tener la misma altura */
+    justify-content: space-between; 
+    height: 40px; /* Altura unificada */
+    gap: 15px; 
+}
+
+/* Estilos compartidos para Titulo, Leyenda y Formato */
+.header-text, .legend-item {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0,0,0,0.6);
+    border-radius: 5px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-sizing: border-box;
+}
+
+.header-text {
+    padding: 0 15px;
+    line-height: 38px; /* Altura 40px - 2px de borde para centrado vertical perfecto */
+    white-space: nowrap;
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block; 
+}
+
+#tournamentTitle { max-width: 60%; }
+#tournamentFormat { max-width: 30%; }
+
+.group-legend-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-shrink: 0; 
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 15px;
+}
+.legend-color-circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- ESTILOS ITEMS DEL TICKER --- */
+.item-box {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+    transition: background-color .5s ease,box-shadow .5s ease,border-color .5s ease;
+}
+.item-top {
+    background-color: var(--color-position-box);
+    font-size: 2.1em;
+    font-weight: bold;
+    color: #FFFFFF;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 80px; 
+    flex-shrink: 0;
+}
+.item-rounds {
+    position: absolute;
+    bottom: 3px;
+    right: 4px;
+    font-size: 0.5em;
+    font-weight: normal; 
+}
+
+/* Contenedor imaginario del Logo */
+.team-logo-container {
+    width: 45px;
+    height: 45px;
+    margin-left: 10px;
+    margin-right: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.team-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.item-points {
+    background-color: rgba(0, 0, 0, 0.3);
+    font-size: 2.1em;
+    font-weight: bold;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px; 
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+.item-info {
+    flex-grow: 1;
+    padding: 5px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0; /* Crucial para que el text-overflow funcione dentro del flex */
+}
+.item-team-name {
+    font-size: 1.3em;
+    font-weight: bold;
+    white-space: nowrap; /* Evita que brinque a doble linea */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Pone "..." si el nombre es muy largo */
+    width: 100%;
+    text-align: center;
+    line-height: 1.2;
+}
+
+/* Jugadores debajo del nombre */
+.item-players {
+    font-size: 0.85em;
+    color: #ffffff;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Pone "..." si no caben todos */
+    width: 100%;
+    text-align: center;
+    margin-top: 2px;
+}
+
+.matchpoint-active { background-color: var(--color-matchpoint); border-color: var(--color-matchpoint-border); }
+.match-winner { animation: winner-glow 1.5s infinite ease-in-out; border-color: var(--color-winner-border); }
+@keyframes winner-glow {
+    0%{background-color:var(--color-winner-base);box-shadow:0 0 10px var(--color-winner-glow)}
+    50%{background-color:var(--color-winner-glow);box-shadow:0 0 20px var(--color-winner-glow)}
+    100%{background-color:var(--color-winner-base);box-shadow:0 0 10px var(--color-winner-glow)}
+}

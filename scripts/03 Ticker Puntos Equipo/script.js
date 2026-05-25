@@ -1,12 +1,7 @@
-window.addEventListener('onWidgetLoad', function (obj) {
-    const configUrl = obj.detail.fieldData.configUrl;
-    if (!configUrl) return;
-    main(configUrl);
-});
-
 // Definimos la URL manualmente ya que no estamos en StreamElements
 const MY_CONFIG_URL = "https://api.jsonbin.io/v3/b/6864add38960c979a5b59aa6";
 
+// Eliminamos el evento de StreamElements y dejamos únicamente el del navegador estándar
 window.addEventListener('DOMContentLoaded', async function () {
     // 1. Cargamos primero la configuración usando nuestro sistema de respaldo
     const config = await fetchConfigSE(MY_CONFIG_URL);
@@ -30,10 +25,10 @@ async function fetchConfigSE(url) {
     } catch (error) {
         console.warn("Falló el servidor principal (JSONBin). Buscando respaldo en la raíz de GitHub...", error);
         
-        // 2. Sistema de respaldo: Apuntar al config.json en la raíz (un nivel arriba)
+        // 2. Sistema de respaldo: Apuntar al config.json en la raíz (dos niveles arriba por profundidad del Ticker)
         try {
             const backupResponse = await fetch(`../config.json?t=${new Date().getTime()}`);
-            if (!backupResponse.ok) throw new Error(`No se encontró el config.json de respaldo en la raíz.`);
+            if (!backupResponse.ok) throw new Error("No se encontró el config.json de respaldo en la raíz.");
             const backupData = await backupResponse.json();
             
             console.log("¡Configuración de respaldo cargada con éxito desde la raíz de GitHub!");
@@ -44,7 +39,6 @@ async function fetchConfigSE(url) {
         }
     }
 }
-
 
 function applyColorConfig(config) { const root = document.documentElement; if (!root || !config.Themes || !config.active_theme_name) return; const activeTheme = config.Themes[config.active_theme_name]; if (!activeTheme) return; for (const key in activeTheme) { if (Object.hasOwnProperty.call(activeTheme, key)) { const cssVarName = `--${key.toLowerCase().replace(/_/g, '-')}`; root.style.setProperty(cssVarName, activeTheme[key]); } } }
 
@@ -98,7 +92,6 @@ function initTickerPuntos(config) {
     const tickerContainer = document.getElementById('tickerItems');
     if (!tickerContainer) return;
 
-    // Variables de configuración de formato (Matchpoint y Clasificación)
     const isMatchpointMode = (config.Settings.b_IsMatchpoint || 'FALSE').toUpperCase() === 'TRUE';
     const matchpointThreshold = parseInt(config.Settings.n_MatchpointThreshold || '150', 10);
     const enableQualificationHighlight = (config.Settings.b_EnableQualificationHighlight || 'FALSE').toUpperCase() === 'TRUE';
@@ -107,11 +100,9 @@ function initTickerPuntos(config) {
     const totalTeamsConfig = parseInt(config.Settings.n_TotalTeams || '50', 10);
     const enableGroupColors = (config.Settings.b_EnableGroupColors || 'FALSE').toUpperCase() === 'TRUE';
     
-    // Configuraciones de vista
     const itemsPerView = parseInt(config.Settings.n_TickerItemsPerView || '5', 10);
     tickerContainer.style.gridTemplateColumns = `repeat(${itemsPerView}, 1fr)`;
     
-    // Variables adicionales requeridas para Logos y Jugadores
     const showLogos = (config.Settings.b_ShowTeamLogos || 'FALSE').toUpperCase() === 'TRUE';
     const logosPath = config.Settings.PATH_TEAM_LOGOS || "";
     const showPlayers = (config.Settings.b_TickerShowPlayers || 'FALSE').toUpperCase() === 'TRUE';
@@ -121,17 +112,11 @@ function initTickerPuntos(config) {
     let allData = [], currentBlockIndex = 0;
 
     const updateHeaderInfo = async () => {
-        // Usamos tu función original, que extrae el nombre "Configuracion" de manera segura
         const configData = await fetchSheetDataSE("GID_Configuracion", config);
-        
-        // Verificamos que la hoja tenga datos
         if (configData && configData.length > 0) {
-            const rowData = configData[0]; // configData[0] es la Fila 2 del Excel
-            
+            const rowData = configData[0];
             const elTitle = document.getElementById('tournamentTitle');
             const elFormat = document.getElementById('tournamentFormat');
-
-            // Inyectamos los valores de H2 e I2 directamente a los textos
             if(elTitle) elTitle.textContent = rowData["Titulo"] || "";
             if(elFormat) elFormat.textContent = rowData["Formato"] || "";
         }
@@ -158,7 +143,6 @@ function initTickerPuntos(config) {
         const numericPoints = parseFloat(Puntos);
         const numericTop = parseInt(Top, 10);
         
-        // --- NUEVA LÓGICA DE RESALTADO ---
         if (isMatchpointMode) {
             if (!isNaN(numericPoints)) {
                 if (numericPoints >= 998) specialClass = "match-winner";
@@ -203,7 +187,6 @@ function initTickerPuntos(config) {
             </div>`;
     };
 
-    // Actualización inteligente (DOM Diffing) para anti-parpadeo
     const updateTeamItemDOM = (domElement, teamData) => {
         const { Top = "-", Equipo = "N/A", Puntos = "0", Rondas = "0", Grupo = "" } = teamData;
         
@@ -211,7 +194,6 @@ function initTickerPuntos(config) {
         const numericPoints = parseFloat(Puntos);
         const numericTop = parseInt(Top, 10);
         
-        // --- NUEVA LÓGICA DE RESALTADO ---
         if (isMatchpointMode) {
             if (!isNaN(numericPoints)) {
                 if (numericPoints >= 998) specialClass = "match-winner";
@@ -255,7 +237,6 @@ function initTickerPuntos(config) {
             elPlayers.style.display = "none";
         }
 
-        // Lógica de Logo anti-parpadeo
         if (showLogos && logosPath) {
             const newCleanName = Equipo.replace(/^Team\s+/i, '').trim().toLowerCase();
             const currentCleanName = domElement.dataset.teamName;
@@ -283,17 +264,13 @@ function initTickerPuntos(config) {
 
         const start = currentBlockIndex * itemsPerView; 
         const blockData = allData.slice(start, start + itemsPerView); 
-
-        // Recuperar cajas actuales para evitar parpadeos
         const currentItems = tickerContainer.querySelectorAll('.item-box');
 
-        // Si tenemos exactamente el mismo numero de cajas, actualizamos en vivo
         if (currentItems.length === blockData.length) {
             blockData.forEach((team, index) => {
                 updateTeamItemDOM(currentItems[index], team);
             });
         } else {
-            // Si la cantidad de items de la página cambia, regeneramos el HTML
             let newHTML = ""; 
             blockData.forEach(team => { newHTML += createTeamItemHTML(team); }); 
             tickerContainer.innerHTML = newHTML; 

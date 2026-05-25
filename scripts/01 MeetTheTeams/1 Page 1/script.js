@@ -21,7 +21,32 @@ async function main(configUrl) {
 }
 
 function setupCanvas(config) { const canvasWidth = parseInt(config.Settings?.n_CanvasWidth || '1920', 10); const canvasHeight = parseInt(config.Settings?.n_CanvasHeight || '1080', 10); const baseWidth = 1920; document.body.style.width = `${canvasWidth}px`; document.body.style.height = `${canvasHeight}px`; const wrapper = document.querySelector('.scale-wrapper'); if (wrapper) { const scaleFactor = canvasWidth / baseWidth; wrapper.style.transform = `scale(${scaleFactor})`; } }
-async function fetchConfigSE(url) { try { const response = await fetch(url + `?t=${new Date().getTime()}`); if (!response.ok) throw new Error(`Error: ${response.status}`); const configData = await response.json(); return configData.record; } catch (error) { console.error("Error en fetchConfigSE:", error); return null; } }
+async function fetchConfigSE(url) {
+    // 1. Intentar cargar desde el servidor principal (JSONBin)
+    try {
+        console.log("Intentando cargar configuración desde JSONBin...");
+        const response = await fetch(url + `?t=${new Date().getTime()}`);
+        if (!response.ok) throw new Error(`JSONBin respondió con estado: ${response.status}`);
+        const configData = await response.json();
+        return configData.record;
+    } catch (error) {
+        console.warn("Falló el servidor principal (JSONBin). Buscando respaldo en la raíz de GitHub...", error);
+        
+        // 2. Sistema de respaldo: Apuntar al config.json en la raíz (un nivel arriba)
+        try {
+            const backupResponse = await fetch(`../config.json?t=${new Date().getTime()}`);
+            if (!backupResponse.ok) throw new Error(`No se encontró el config.json de respaldo en la raíz.`);
+            const backupData = await backupResponse.json();
+            
+            console.log("¡Configuración de respaldo cargada con éxito desde la raíz de GitHub!");
+            return backupData.record ? backupData.record : backupData;
+        } catch (backupError) {
+            console.error("Error crítico: Ambos servidores de configuración fallaron.", backupError);
+            return null;
+        }
+    }
+}
+
 function applyColorConfig(config) { const root = document.documentElement; if (!root || !config.Themes || !config.active_theme_name) return; const activeTheme = config.Themes[config.active_theme_name]; if (!activeTheme) return; for (const key in activeTheme) { if (Object.hasOwnProperty.call(activeTheme, key)) { const cssVarName = `--${key.toLowerCase().replace(/_/g, '-')}`; root.style.setProperty(cssVarName, activeTheme[key]); } } }
 
 // FUNCIÓN BASE ORIGINAL CON DEBUG AÑADIDO
@@ -86,7 +111,10 @@ function renderGroupLegend(config) {
 }
 
 function initMeetTheTeams(config) {
+    // === CAMBIA ESTO A 2 PARA TU SEGUNDO OVERLAY ===
     const PAGE_TO_SHOW = 1; 
+    // ===============================================
+    
     const DATA_REFRESH_INTERVAL = 10000;
     
     if(DEBUG_MODE) console.log("[DEBUG] Inicializando MeetTheTeams...");
@@ -137,10 +165,8 @@ function initMeetTheTeams(config) {
         rowHeight = 200;
     } else {
         gridContainer.classList.remove('with-photos');
-        if (totalTeamsConfig <= 30) { cols = 3; } 
-        else if (totalTeamsConfig <= 40) { cols = 4; } 
-        else { cols = 5; }
-        rows = Math.ceil(totalTeamsConfig / cols);
+        cols = 3; // Forzamos siempre a 3 columnas
+        rows = 10; // Base inicial máxima
         rowHeight = 66;
     }
     
@@ -200,10 +226,7 @@ function initMeetTheTeams(config) {
         let html = `<div class="player-photos-block">`;
         players.forEach((player) => {
             if (!player) return;
-            
-            // CORRECCIÓN: Permitir espacios al limpiar el nombre (agregado un espacio antes de cerrar el corchete)
             const cleanPlayerName = player.trim().replace(/[^a-zA-Z0-9_ ]/g, '').toLowerCase();
-            
             const photoUrl = `${playersPath}NoBackground/${cleanPlayerName}.png`;
             const defaultUrl = `${playersPath}NoBackground/default.png`;
             const onErrorLogic = `this.onerror=null; this.src='${defaultUrl}';`.replace(/"/g, "'");
@@ -298,6 +321,7 @@ function initMeetTheTeams(config) {
         let displayData = [];
         
         if (showPlayerPhotos) {
+            // --- LÓGICA INTACTA PARA FOTOS ---
             if (totalTeamsConfig > 16) {
                 const itemsPerPage = 9; 
                 const startIndex = (PAGE_TO_SHOW - 1) * itemsPerPage;
@@ -309,17 +333,40 @@ function initMeetTheTeams(config) {
                     if (infoHeader) infoHeader.style.opacity = 0;
                     return; 
                 }
+                cols = 3;
                 rows = Math.ceil(displayData.length / cols);
             } else {
+                if (totalTeamsConfig <= 12) { cols = 3; } else { cols = 4; }
                 displayData = allData.slice(0, totalTeamsConfig);
                 rows = Math.ceil(displayData.length / cols);
             }
         } else {
-            displayData = allData.slice(0, totalTeamsConfig);
+            // --- NUEVA LÓGICA: SIN FOTOS (CON DISTRIBUCIÓN EQUITATIVA) ---
+            const splitEvenly = (config.Settings.b_SplitTeamsEvenly || 'FALSE').toUpperCase() === 'TRUE';
+            let itemsPerPage = 30; // Máximo por default sin dividir (3 cols x 10 rows)
+
+            if (splitEvenly && totalTeamsConfig > 30) {
+                // Divide la cantidad total entre las 2 páginas
+                itemsPerPage = Math.ceil(totalTeamsConfig / 2);
+            }
+
+            const startIndex = (PAGE_TO_SHOW - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            displayData = allData.slice(startIndex, endIndex);
+
+            if (displayData.length === 0) {
+                gridContainer.innerHTML = "";
+                if (infoHeader) infoHeader.style.opacity = 0;
+                return; 
+            }
+
+            cols = 3; // Siempre 3 columnas
             rows = Math.ceil(displayData.length / cols);
         }
 
+        gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
         gridContainer.style.gridTemplateRows = `repeat(${rows}, ${rowHeight}px)`;
+        
         const currentItems = gridContainer.querySelectorAll('.item-box');
 
         if (currentItems.length === displayData.length && currentItems.length > 0) {

@@ -23,7 +23,7 @@
     "PATH_BACKGROUNDS": "https://raw.githubusercontent.com/richo120792/StreamElementsOverlay/main/img/NovaxPhoenix_RB_WP/",
     "PATH_PLAYER_PHOTOS": "https://raw.githubusercontent.com/richo120792/StreamElementsOverlay/main/img/FotosJugadores/",
     "PATH_TEAM_LOGOS": "https://raw.githubusercontent.com/richo120792/StreamElementsOverlay/main/img/LogosEquipos/",
-    "b_IsMatchpoint": "FALSE",
+    "b_IsMatchpoint": "TRUE",
     "n_MatchpointThreshold": 150,
     "n_TotalTeams": 16,
     "n_PlayersPerTeam": 3,

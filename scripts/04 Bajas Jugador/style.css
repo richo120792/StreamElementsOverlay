@@ -1,0 +1,158 @@
+:root {
+    --color-position-box: rgba(255, 111, 0, 0.7);
+}
+body {
+    font-family: 'Arial', sans-serif;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    margin: 0;
+    overflow: hidden;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+}
+.scale-wrapper {
+    position: absolute;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: top left;
+}
+.grid-container {
+    box-sizing: border-box;
+    position: absolute;
+    top: 150px;
+    bottom: 150px;
+    left: 410px;
+    right: 50px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    grid-auto-flow: column;
+    align-content: center;
+    opacity: 0;
+    transition: opacity .5s ease-in-out;
+}
+.item-box {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 66px;
+    transition: background-color .5s ease,box-shadow .5s ease,border-color .5s ease;
+}
+.item-top {
+    background-color: var(--color-position-box);
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #FFFFFF;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 75px;
+    flex-shrink: 0;
+}
+.item-rounds {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 0.5em;
+    font-weight: normal;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* --- NUEVO: Estilos para el Logo (Igual que PuntosEquipo) --- */
+.team-logo-container {
+    width: 50px;
+    height: 50px;
+    margin-left: 10px; 
+    margin-right: 5px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.team-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: auto;
+}
+/* ----------------------------------------------------------- */
+
+.item-points {
+    background-color: rgba(0, 0, 0, 0.3);
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #FFFFFF;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 110px;
+    flex-shrink: 0;
+}
+.item-info {
+    flex-grow: 1;
+    padding: 5px 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+.item-team-name {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #FFFFFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.item-players {
+    display: none;
+}
+.group-legend {
+    position: absolute;
+    bottom: 110px;
+    left: 410px;
+    right: 50px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    opacity: 0;
+    transition: opacity .5s ease-in-out;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1em;
+    background-color: rgba(0,0,0,0.6);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+.legend-color-circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+/* --- Estilos para Premios de Top Fraggers --- */
+.fragger-top1 {
+    background-color: var(--color-winner-glow);
+    border-color: var(--color-winner-border);
+}
+.fragger-top2 {
+    background-color: var(--color-winner-base);
+    border-color: var(--color-winner-border);
+}
+.fragger-top3 {
+    background-color: var(--color-matchpoint);
+    border-color: var(--color-matchpoint-border);
+}

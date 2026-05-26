@@ -1,4 +1,4 @@
-// Variable para control de cambios y evitar parpadeo
+// Variable para control de cambios y evitar parpadeo //
 let lastDataJSON = "";
 
 // Forzamos la URL de configuración directamente
